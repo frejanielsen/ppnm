@@ -1,0 +1,9 @@
+hello
+hello, world
+hello (file scope?):file scope
+hello (function scope?):function scope
+hello (block scope?):block scope
+x=7
+sqrt(-2)=0 +I1.41421
+sqrt(im)=0.707107 +I0.707107
+x:0
