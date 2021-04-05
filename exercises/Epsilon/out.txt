@@ -1,0 +1,9 @@
+my maximum int: 2147483647
+my max int using for loop: 2147483647
+my max int using do while loop: 2147483647
+Min int = -2147483648
+min int usinf for loop: -2147483648
+min int using do while loop: -2147483646
+min abs double: 2.22045e-16
+min abs float: 2.38419e-07
+min abs long double: 1.0842e-19

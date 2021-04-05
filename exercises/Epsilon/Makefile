@@ -1,15 +1,24 @@
-CC =  gcc                                                                                                                                                                                                          LDLIBS = -lm                                                                                                                                                                                                                                  default: out.txt                                                                                                               cat out.txt                                                                                                                                                                                                                           out.txt: epsilon                                                                                                               ./epsilon > out.txt                                                                                                                                                                                                                   epsilon: epsilon.o                                                                                                             $(CC) -o epsilon epsilon.o $(LDLIBS)                                                                                                                                                                                                  epsilon.o: epsilon.c                                                                                                           $(CC) $(CFLAGS) -c epsilon.c                                                                                                                                                                                                          clean:                                                                                                                         $(RM) epsilon.o epsilon out.txt                                                                                                                                                                                                       #.PHONEY: test                                                                                                         #test:                      # test target used for debugging                                                           #       echo $(LDLIBS)                                                                                                 #       echo $(CC)                                                                                                     #       echo $(RM)                                                                   CC = tcc
-CFLAGS = -O -fwrapv -std=gnu11 -Wall
-LDFLAGS = -I.
+CC =  gcc
+CFLAGS = -O -fwrapv -Wall
 LDLIBS = -lm
 
 default: out.txt
 	cat out.txt
 
-out.txt: epsilon equal
-	./$< > $@
-	./equal >> $@
+out.txt: epsilon
+	./epsilon > out.txt
 
-clean: 
-	$(RM) -f *.o *.txt epsilon equal
-                                                                                                                                                                         
+epsilon: epsilon.o
+	$(CC) -o epsilon epsilon.o $(LDLIBS)
+
+epsilon.o: epsilon.c
+	$(CC) $(CFLAGS) -c epsilon.c
+
+clean:
+	$(RM) epsilon.o epsilon out.txt
+
+#.PHONEY: test
+#test: 			#test target used for debugging
+#	echo $(LDLIBS)
+#	echo $(CC)
+#	echo $(RM)
