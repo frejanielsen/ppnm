@@ -1,24 +1,24 @@
 CC =  gcc
-CFLAGS = -O -fwrapv -Wall
+CFLAGS = -O -fwrapv -std=gnu11 -Wall
+LDFLAGS = -I.
 LDLIBS = -lm
+
+
 
 default: out.txt
 	cat out.txt
 
-out.txt: epsilon
-	./epsilon > out.txt
+out.txt: epsilon  equals
+	./$< > $@
+	./equals >> $@
 
-epsilon: epsilon.o
-	$(CC) -o epsilon epsilon.o $(LDLIBS)
-
-epsilon.o: epsilon.c
-	$(CC) $(CFLAGS) -c epsilon.c
-
+.PHONEY: clean
 clean:
 	$(RM) epsilon.o epsilon out.txt
 
-#.PHONEY: test
-#test: 			#test target used for debugging
-#	echo $(LDLIBS)
-#	echo $(CC)
-#	echo $(RM)
+.PHONEY: test
+
+test:
+	echo $(CC)
+	echo $(CDLIBS)
+	echo $(LDFLAGS)

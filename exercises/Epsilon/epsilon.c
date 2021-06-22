@@ -46,18 +46,44 @@ int main(){
 
 
 
-/*2.i*/
-
-
-
-
-
-/*3.i*/
+/*2*/
 	int max = INT_MAX/2;
 	int c = 1;
 	float g = 0;
 
+	while(c<max+1){
+	g += 1.0f/c;
+	c++;
+	}
 
+	printf("sum up: %f\n",g);
+	g=0;
+
+	while(c>0){
+	g += 1.0f/c;
+	c--;
+	}
+
+	printf("sum down: %f\n",g);
+	g=0;
+
+	double g_d = 0;
+
+	while(c<max+1){
+	g_d += 1.0/c;
+	c++;
+	}
+
+	printf("sum up: %g\n",g_d);
+	g_d=0;
+
+	while(c>0){
+	g_d += 1.0/c;
+	c--;
+	}
+
+
+	printf("sum down: %g\n",g_d);
 
 
 return 0;

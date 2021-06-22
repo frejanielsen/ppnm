@@ -7,3 +7,8 @@ min int using do while loop: -2147483646
 min abs double: 2.22045e-16
 min abs float: 2.38419e-07
 min abs long double: 1.0842e-19
+sum up: 15.403683
+sum down: 18.807919
+sum up: inf
+sum down: 21.3716
+are they equal: 1

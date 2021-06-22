@@ -1,19 +1,26 @@
 CC = gcc
-CFLAGS = -std=gnu99 -O -Wall
+CFLAGS = -O  -std=gnu11
 LDLIBS = -lm
 
-out.txt: hello math
-	./hello > out.txt
-	./math >> out.txt
+default: out.txt
+	cat out.txt
 
-hello.o: hello.c hello.h
-	$(CC) $(CFLAGS) -c hello.c -o hello.o
+out.txt: math
+	./math > out.txt
 
-hello: hello.o world.o
-	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+math: math.o
+	$(CC) -o math math.o $(LDLIBS)
 
-world.o: world.c hello.h
-	$(CC) $(CFLAGS) -c $< -o $@
+math.o: math.c
+	$(CC) $(CFLAGS) -c  math.c
 
+.PHONEY: clean
 clean:
-	$(RM) *.o out* hello
+	$(RM) meth.o math out.txt
+
+.PHONEY: test
+test:
+	echo $(LDLIBS)
+	echo $(CC)
+	echo $(RM)
+

@@ -1,9 +1,10 @@
-hello
-hello, world
-hello (file scope?):file scope
-hello (function scope?):function scope
-hello (block scope?):block scope
-x=7
-sqrt(-2)=0 +I1.41421
-sqrt(im)=0.707107 +I0.707107
-x:0
+famma(5): 24 + 0i 
+j1(5): 0.242268 + 0i 
+complex-sqrt(-2): 0 + 1.41421i 
+e^{i}: 0.540302 + 0.841471i 
+e^{i*pi}: -1 + 1.22465e-16i 
+i^{e}: -0.42822 + -0.903675i 
+i^{i}: 0.20788 + -0.903675i 
+float: 0.1111111119389533996582031  
+double: 0.1111111111111111049432054 
+long double: 0.1111111111111111111096053 
