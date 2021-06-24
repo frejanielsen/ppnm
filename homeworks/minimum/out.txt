@@ -1,0 +1,32 @@
+minimize (1-X)*(1-X)+100*(Y-X*X)*(Y-X*X)
+starting with x= 10.000000
+            10.000000
+Gives: f2(x,y)=810081.000000
+minimization done:
+ x= -3.085953
+     9.531513
+gives: f2(x,y)= 16.702079
+
+
+minimize (X*X+Y-11.0)*(X*X+Y-11.0)+(X+Y*Y-7.0)*(X+Y*Y-7.0)
+starting with x= 3.000000
+             3.000000
+Gives: f3(x,y)= 26.000000
+minimization done:
+ x=  3.000287
+     2.000504
+gives: f3(x,y)=  0.000010
+
+
+minimize A/((E-m)*(E-m)+Gamma*Gamma/4.0)
+starting with x= 1000.000000
+             1.000000
+             0.100000
+Gives: f4(E,gamma,A)= 26.142979
+minimization done:
+ x=1000.030415
+     1.462519
+     0.099891
+gives: f4(E,gamma,A)= 26.140831
+
+

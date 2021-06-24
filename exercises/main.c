@@ -1,5 +1,5 @@
-#include"stdio.h"
-#include"gsl/gsl_matrix.h"
+#include "stdio.h"
+#include "gsl/gsl_matrix.h"
 
 int print_half_00(gsl_matrix* m)
 {
@@ -16,10 +16,10 @@ int main(void)
 	printf("half m_{00} (should be 33):\n");
 	int status = print_half_00(m);
 	if(status>0)
-		printf("status=%i : SOMETHING WENT TERRIBLY WRONG (status>0)\n",status);
+		{printf("status=%i : SOMETHING WENT TERRIBLY WRONG (status>0)\n",status);}
 	else
-		printf("status=%i : everything went just fine (status=0)\n",status);
-	//gsl_matrix_free(m);
+		{printf("status=%i : everything went just fine (status=0)\n",status);}
+	
 return 0;
 }
 

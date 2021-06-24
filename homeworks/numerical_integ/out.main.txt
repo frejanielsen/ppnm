@@ -1,0 +1,13 @@
+integral of sqrt(x) from 0 to 1
+Nummerical result=0.666681 
+ Analytical result 2/3 
+Function called 40 times
+Integration error 0.000072
+
+
+
+integral of 4*sqrt(1-x²) from 0 to 1
+Nummerical result=3.141598 
+ Analytical result pi 
+Function called 80 times
+Integration error 0.000135
