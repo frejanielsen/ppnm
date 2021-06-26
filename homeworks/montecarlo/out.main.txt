@@ -6,7 +6,7 @@ res=5.997306
 err=0.012314
 actual result: 5.9933
 
-integral of cos(x)*cos(y)*sin(x) from 0 to pi , with 30000 points:
+integral of cos(x)*cos(y) from 0 to pi , with 30000 points:
 plainmc called. 
 res=-0.000000
 err=0.000000
@@ -19,7 +19,7 @@ err=0.027779
 actual result: 1.39320393
 
 B:
-multidimensional integration on integral of cos(x)*cos(y)*sin(x) from 0 to 3.14159265 in both x and y, with 30k points:multimc called. 
-res=0.000000
-err=0.000000
+multidimensional integration on integral of cos(x)*cos(y) from 0 to 3.14159265 in both x and y, with 30k points:multimc called. 
+res=inf
+err=nan
 actual result: 0
