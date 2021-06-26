@@ -15,8 +15,8 @@ void harm_f(double variable, gsl_vector *functionValue, gsl_vector *functionDeri
 void SIR_model(double variable, gsl_vector *functionValue, gsl_vector *functionDerivative)
 {
     double population = 5806000; //population of denmark 2019
-    double recoveryTime = 21; //Three weeks recovery
-    double contactTime = 3; //Time between contacts
+    double recoveryTime = 21;
+    double contactTime = 3;
     double susceptible = gsl_vector_get(functionValue, 0);
     double infected = gsl_vector_get(functionValue, 1);
     double derivativeSusceptible = -(susceptible * infected) / (contactTime * population);
@@ -31,9 +31,9 @@ void SIR_model(double variable, gsl_vector *functionValue, gsl_vector *functionD
 
 void SIR_model_new_contact_time(double variable, gsl_vector *functionValue, gsl_vector *functionDerivative)
 {
-    double population = 5806000; //population of denmark 2019
-    double recoveryTime = 21; //Three weeks recovery
-    double contactTime = 6; //Time between contacts, doubled for this equation
+    double population = 5806000;
+    double recoveryTime = 21;
+    double contactTime = 6; //doubled from prev.
     double susceptible = gsl_vector_get(functionValue, 0);
     double infected = gsl_vector_get(functionValue, 1);
     double derivativeSusceptible = -(susceptible * infected) / (contactTime * population);

@@ -10,7 +10,7 @@ default: out.main.txt
 out.main.txt: main
 	./$< > $@
 
-main: main.o funcs.o
+main: main.o numfs.o
 
 
 .PHONEY: clean

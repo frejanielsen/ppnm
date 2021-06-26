@@ -4,7 +4,7 @@
 #include "funcs.h"
 
 double integ_reuse (double f(double),double xmin, double xmax,
-	double acc, double eps, double f2, double f3,  int nrec ,double* Err){
+	double acc, double eps, double f2, double f3,  int nrec){
 	assert(nrec<50000);
 
 	double f1 = f(xmin + (xmax - xmin) / 6); //function evaluations not reused
@@ -14,18 +14,30 @@ double integ_reuse (double f(double),double xmin, double xmax,
 	double tol = acc+eps*fabs(Q);
 	double err = fabs(Q - q);
 
-	if (err < tol){
+	double* Err = 0;
+	if(err < tol){
 		*Err = sqrt((*Err) * (*Err) + err * err);
 		return Q;
 	} else {
 		nrec++;
-		double Qi = integ_reuse(f,xmin,(xmax + xmin)/2,acc/sqrt(2.0),eps,f1,f2,nrec,Err);
-		double Qii = integ_reuse(f,(xmax + xmin)/2,xmax,acc/sqrt(2.0),eps,f3,f4,nrec,Err);
+		double Qi = integ_reuse(f,xmin,(xmax + xmin)/2,acc/sqrt(2.0),eps,f1,f2,nrec);
+		double Qii = integ_reuse(f,(xmax + xmin)/2,xmax,acc/sqrt(2.0),eps,f3,f4,nrec);
 		return Qi+Qii;
 	}
 }
 
-double integ(double f(double),double xmin, double xmax, double acc, double eps, int nrec,double* Err){
+double integ_cc(double f(double), double acc, double eps, int nrec){
+	double xmin = 0;
+	double xmax = 3.14159;
+	double F(double x){
+		return F(cos(x))*sin(x);
+	}
+	double f2 = F(xmin+(xmax-xmin)/3);
+	double f3 = F(xmin+2*(xmax-xmin)/3);
+	return integ_reuse(F,xmin,xmax,acc,eps,f2,f3,nrec);
+}
+
+double integ(double f(double),double xmin, double xmax, double acc, double eps, int nrec){
 
 	double f2 = 0;
 	double f3 = 0;
@@ -45,7 +57,7 @@ double integ(double f(double),double xmin, double xmax, double acc, double eps, 
 		f2 = F(xMin + (xMax - xMin)/3);
 		f3 = F(xMin + 2*(xMax - xMin)/3);
 
-		result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec,Err);
+		result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec);
 	}
 
 	if (isinf(xmax)==1 && isinf(xmin)==0) {
@@ -59,7 +71,7 @@ double integ(double f(double),double xmin, double xmax, double acc, double eps, 
 	        f3 = F(xMin+2*(xMax-xMin)/3);
 
 
-	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec,Err);
+	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec);
 	}
 
 
@@ -75,7 +87,7 @@ double integ(double f(double),double xmin, double xmax, double acc, double eps, 
 	        f3 = F(xMin+2*(xMax-xMin)/3);
 
 
-	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec,Err);
+	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec);
 	}
 
 	if (isinf(xmin)==0 && isinf(xmax)==0){
@@ -91,7 +103,7 @@ double integ(double f(double),double xmin, double xmax, double acc, double eps, 
 	        f3=F(xMin+2*(xMax-xMin)/3);
 
 
-	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec,Err);
+	        result = integ_reuse(F,xMin,xMax,acc,eps,f2,f3,nrec);
 	}
 
 

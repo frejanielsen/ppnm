@@ -103,14 +103,43 @@ void* invert(gsl_matrix* Q,gsl_matrix* R,gsl_matrix* Ai){
 double func(int i, double x){
 	switch(i){
 		case  0: return 1  ; break;
-		case  1: return x  ; break;
+		case  1: return -x  ; break;
 		case  2: return x*x; break;
 		default: return NAN;
 		}
 	}
 
-void* fit(){
+void* fit(gsl_matrix* data, double func(int i, double x), int N_f, gsl_vector* y, gsl_matrix* cov ){
+        int N = data->size1;
+	gsl_matrix* A = gsl_matrix_alloc(N,N_f);
+	gsl_matrix* R = gsl_matrix_alloc(N_f,N_f);
+	gsl_matrix* Rr = gsl_matrix_alloc(N_f,N_f);
+	gsl_matrix* Ri = gsl_matrix_alloc(N_f,N_f);
+	gsl_vector* Y = gsl_vector_alloc(N);
 
+	for (int i=0;i<N;i++){
+		for (int j=0;j<N_f;j++){
+			gsl_matrix_set(A,i,j,func(j,gsl_matrix_get(data,i,0))/gsl_matrix_get(data,i,2));
+		}
+	}
+	matrixprint(A);
+	for (int j=0;j<N;j++){
+        	gsl_vector_set(Y,j,gsl_matrix_get(data,j,1)/gsl_matrix_get(data,j,2));
+        }
+
+	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1.0,A,A,0.0,R);
+	GS_decomp(R,Rr);
+	invert(R,Rr,cov);
+
+	GS_decomp(A,R);
+        gsl_blas_dgemv(CblasTrans,1.0,A,Y,0.0,y);
+        backsub(R,y);
+
+	gsl_matrix_free(A);
+	gsl_matrix_free(R);
+	gsl_matrix_free(Rr);
+	gsl_matrix_free(Ri);
+	gsl_vector_free(Y);
 
 
 return NULL;

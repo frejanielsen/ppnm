@@ -1,16 +1,25 @@
+A:
 checking function f1 works: 2.000000
 integral of exp(-x)+1 from 0 to 5 , with 10000 points:
- plainmc called. 
- res=5.997306
- err=0.012314
- actual result: 5.9933
+plainmc called 
+res=5.997306
+err=0.012314
+actual result: 5.9933
+
 integral of cos(x)*cos(y)*sin(x) from 0 to pi , with 30000 points:
- plainmc called. 
- res=-0.000000
- err=0.000000
- actual result: 0
-integral of 1/(1-cos(x)*cos(y)*cos(z)) from 0 to pi in x, y and z, with 30000 points:
- plainmc called. 
- res=1.379166
- err=0.027779
- actual result: 1.39320393
+plainmc called. 
+res=-0.000000
+err=0.000000
+actual result: 0
+
+integral of 1/(1-cos(x)*cos(y)*cos(z)) from 0 to pi in x, y and z, with 30k points:
+plainmc called. 
+res=1.379166
+err=0.027779
+actual result: 1.39320393
+
+B:
+multidimensional integration on integral of cos(x)*cos(y)*sin(x) from 0 to 3.14159265 in both x and y, with 30k points:multimc called. 
+res=0.000000
+err=0.000000
+actual result: 0

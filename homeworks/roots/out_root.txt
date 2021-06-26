@@ -1,0 +1,59 @@
+A: 
+
+1d function:
+start x:
+    9.9898
+
+f(X): 
+    9.9898
+
+root found from algorithm:
+-2.19704e-07
+
+f(x_root):
+    9.9898
+
+with accuracy:   0.000100
+
+
+2d function:
+start x:
+  0.879925
+   0.56528
+
+f(X): 
+  0.650801
+  0.491091
+
+root found from algorithm:
+    1.5708
+  -7.85398
+
+f(x_root):
+  0.650801
+  0.491091
+
+with accuracy:   0.000100
+
+
+the gradient of the Rosenbrock's valley function:
+start x:
+    11.595
+   11.6988
+
+f(X): 
+    569317
+  -24549.1
+
+root found from algorithm:
+ x:
+         1
+         1
+
+f(x_root):
+    569317
+  -24549.1
+
+with accuracy:   0.000050
+
+

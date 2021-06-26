@@ -3,10 +3,7 @@
 #include <stdio.h>
 #include <gsl/gsl_integration.h>
 
-#include "funcs.h" // include functions
-
-
-
+#include "numfs.h" // include functions
 
 int main () {
 
@@ -49,5 +46,35 @@ int main () {
 	printf("Integration error %f\n",Err);
 
 
+	/////// CC /////
+/*
+	nrec=0;
+	calls=0;
+	double I_c = integ(f_2,acc,eps,nrec);
+	printf("\n\n\nIntegral of 4*sqrt(1-x²) from 0 to 1 with Clenshaw-Curtis transformation\n");
+	printf("Nummerical result=%f\nAnalytical result pi \nFunction called %i times\n",I_c,calls);
+
+	nrec=0;
+	calls=0;
+
+	double f3(double x){
+		calls++;
+		return 1.0/sqrt(x);
+	}
+	I = integ_cc(f3,acc,eps,nrec);
+	printf("\n\n Integral of 1/sqrt(x) from 0 to 1 with Clenshaw-Curtis transformation:\n");
+	printf("Nummerical result=%f \nAnalytical result 2 \nFunction called %i times\n",I,calls);
+
+	nrec=0;
+	calls=0;
+
+	double f4(double x){
+		calls++;
+		return log(x)/sqrt(x);
+	}
+	I = integ_cc(f4,acc,eps,nrec);
+	printf("\n\n Integral of log(x)/sqrt(x) from 0 to 1 with Clenshaw-Curtis transformation:\n");
+	printf("Nummerical result=%f \nAnalytical result 2 \nFunction called %i times\n",I,calls);
+*/
 	return 0;
 }

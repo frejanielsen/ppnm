@@ -1,0 +1,10 @@
+	set terminal png;\
+	set output "$@";\
+	set xlabel "Time (days)";\
+	set ylabel "Counts";\
+	set key top;\
+	plot "$<" index 0 using 1:2 w l title "Best fit"\
+	, "$<" index 1 using 1:2 w l title "Fit + Delta c"\
+	, "$<" index 2 using 1:2 w l title "Fit - Delta c"\
+	, "out.data.txt" using 1:2:3 with errorbars title "Data";\
+ 
