@@ -1,6 +1,6 @@
 CFLAGS +=  $(shell gsl-config --cflags)
 LDLIBS +=  $(shell gsl-config --libs)
-LDLIBS +=  -lm -Wall
+LDLIBS +=  -lm -Wall -O -std=gnu11
 
 CC   	=  gcc
 PIPE    =  cat
@@ -15,7 +15,9 @@ TXT     =  output.txt
 
 
 .PHONEY: default
-default: print $(IMGFL)
+#default: harm_output.txt SIR_output.txt SIR_output2.txt #print $(IMGFL)
+
+
 
 print: $(TXT)
 	$(PIPE) $<

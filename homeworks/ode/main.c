@@ -7,6 +7,8 @@
 
 
 int main(int argc, char * argv[]){
+	printf("Results found in individual txt-files for each example run, each with corresponding plots as png files\n");
+
 	//A
 	//Solving u'' = -u
 	int harmonicDimension = 2;
@@ -24,6 +26,7 @@ int main(int argc, char * argv[]){
     FILE *harm_output = fopen(argv[1], "w");
     rk_driver(&harm_f, leftEndpoint, harmonicFunctionValueLeft, rightEndPoint, harmonicFunctionValueRight,
               step, absoluteAccuracy, relativeAccuracy, harm_output);
+    //fprintf(harm_output, "HARMONIC OSCILATOR - PLOT IN .png FILE");
     fclose(harm_output);
 
     //Solving SIR-model

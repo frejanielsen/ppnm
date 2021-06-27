@@ -6,6 +6,7 @@ LDLIBS += $(shell gsl-config --libs)
 
 default: out.lin.txt out.quad.txt out.cube.txt out.gsl.lin.txt interp.png integ.png integ.quad.png
 
+
 out.lin.txt: lin
 	./$< > $@
 
