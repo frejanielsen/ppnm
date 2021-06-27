@@ -1,51 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "funcs.h"
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_vector.h>
 
-double *cholesky(double *A, int n) {
-    double *L = (double*)calloc(n * n, sizeof(double));
-    if (L == NULL)
-        exit(EXIT_FAILURE);
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < (i+1); j++) {
-            double s = 0;
-            for (int k = 0; k < j; k++)
-                s += L[i * n + k] * L[j * n + k];
-            L[i * n + j] = (i == j) ?
-                           sqrt(A[i * n + i] - s) :
-                           (1.0 / L[j * n + j] * (A[i * n + j] - s));
-        }
+int main(){
+	int n = 5;
+	gsl_matrix* A = gsl_matrix_alloc(n,n);
+	gsl_matrix* L = gsl_matrix_alloc(n,n);
+	gsl_matrix* A_c = gsl_matrix_alloc(n,n);
 
-    return L;
-}
+	unsigned int rand_seed=2;
+	for (int i = 0; i<n; i++){
+		for (int j=0; j<n; j++){
+			gsl_matrix_set(A,j,i,1.0*rand_r(&rand_seed)/RAND_MAX);
+		}}
+	FILE* out = fopen("out.txt","w");
+	fprintf(out,"A:\n");
+	matrixprint(A,out);
 
-void show_matrix(double *A, int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++)
-            printf("%2.5f ", A[i * n + j]);
-        printf("\n");
-    }
-}
 
-int main() {
-    int n = 3;
-    double m1[] = {25, 15, -5,
-                   15, 18,  0,
-                   -5,  0, 11};
-    double *c1 = cholesky(m1, n);
-    show_matrix(c1, n);
-    printf("\n");
-    free(c1);
 
-    n = 4;
-    double m2[] = {18, 22,  54,  42,
-                   22, 70,  86,  62,
-                   54, 86, 174, 134,
-                   42, 62, 134, 106};
-    double *c2 = cholesky(m2, n);
-    show_matrix(c2, n);
-    free(c2);
 
-    return 0;
+/*
+	int n = 4;
+	double m1[n*n];
+	srand(0);
+	for (int i = 0; i < (3*n); i++) {
+    		m1[i] = rand();
+	}
+	double *c1 = cholesky(m1, n);
+	printf("m1:\n");
+	print_matrix(c1, n);
+	printf("\n");
+	free(c1);
+	n = 4;
+	printf("m2:\n");
+	double m2[16] = {18, 22,  54,  42,
+	               22, 70,  86,  62,
+	               54, 86, 174, 134,
+	               42, 62, 134, 106};
+	double *c2 = cholesky(m2, n);
+	double* C2 = Cholesky(m2,n);
+	print_matrix(c2, n);
+	print_matrix(C2,n);
+	free(c2);
+	free(C2);
+*/
+return 0;
 }

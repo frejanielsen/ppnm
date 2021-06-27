@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <gsl/gsl_linalg.h>
 #define RND (double)rand()/RAND_MAX;
-
+/*
 typedef struct { int n; double(*f)(double); gsl_vector* params; } ann;
 
 ann* alloc(int n,double(*f)(double)){
@@ -57,7 +57,7 @@ double cost(gsl_vector* p){
 	return sum / N;
 }
 
-
+*/
 void gradient(double f(gsl_vector* xvector),gsl_vector* x,gsl_vector* grad){
 	double DELTA = 2.22045e-16;
 	int n = x->size;
@@ -105,12 +105,12 @@ void multimc(double f(gsl_vector* xvector),gsl_vector* x, double eps,int steps){
 		double lambda = 1;
 		double norm_grad = gsl_blas_dnrm2(grad);
 		if(norm_grad<DELTA*gsl_blas_dnrm2(x)){
-			printf("The gradient is within our acceptance\nit is %g",norm_grad);
+			//printf("The gradient is within our acceptance\nit is %g",norm_grad);
 			break;
 		}
 		double norm_Dx = gsl_blas_dnrm2(Dx);
 		if(norm_Dx<eps){
-			printf("Dx is within our acceptance\n");
+			//printf("Dx is within our acceptance\n");
 			break;
 		}
 
@@ -160,7 +160,7 @@ void multimc(double f(gsl_vector* xvector),gsl_vector* x, double eps,int steps){
 		gsl_vector_memcpy(grad,gradxs);
 		fx = fxs;
 	}
-	printf("The number of steps it took to find the extremum is %i\n",k);
+	//printf("The number of steps it took to find the extremum is %i\n",k);
 	gsl_matrix_free(I);
 	gsl_matrix_free(B);
 	gsl_vector_free(Dx);
@@ -173,7 +173,7 @@ void multimc(double f(gsl_vector* xvector),gsl_vector* x, double eps,int steps){
 	gsl_vector_free(y);
 }
 
-
+/*
 void ann_train(ann* network,gsl_vector* xs, gsl_vector* ys){
 	int N = network->params->size;
 	gsl_vector* p = gsl_vector_alloc(N);
@@ -184,3 +184,4 @@ void ann_train(ann* network,gsl_vector* xs, gsl_vector* ys){
 	gsl_vector_free(p);
 }
 
+*/

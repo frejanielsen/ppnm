@@ -1,4 +1,6 @@
-Cholesky decomposition of a real symmetric positive-definite matrix:
+#7 - Cholesky decomposition of a real symmetric positive-definite matrix
+
+
 
 For a real symmetric positive-definite matrix, A, the Cholesky decomposition,
 	A=LLT (where L is lower-triangular), is more efficient than the LU-decomposition. 

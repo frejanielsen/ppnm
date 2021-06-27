@@ -5,9 +5,10 @@ LDLIBS = -lm
 
 out.txt: main
 	./main > out.txt
-main.o: main.c
+
+main.o: main.c funcs.c
 	$(CC) $(CFLAGS) -c main.c -o main.o
-main: main.o
+main: main.o funcs.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 
