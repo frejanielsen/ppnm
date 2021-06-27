@@ -1,7 +1,11 @@
-CC = gcc
-CFLAGS = -std=gnu99 -Wall -O
+CFLAGS = -Wall -O -std=gnu11
+CFLAGS += $(shell gsl-config --cflags)
 LDLIBS = -lm
+LDLIBS += $(shell gsl-config --libs)
 
+.PHONEY: default
+default: out.txt
+	cat out.txt
 
 out.txt: main
 	./main > out.txt
@@ -12,6 +16,6 @@ main: main.o funcs.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 
-.PHONEY:
+.PHONEY: clean
 clean:
 	$(RM) *.o out* main
