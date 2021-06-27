@@ -2,15 +2,18 @@ CC = gcc
 CFLAGS = -O  -std=gnu11
 LDLIBS = -lm
 
-default: out.txt
 
-out.txt: main
+exp.pdf: exp.tex exp_plot.pdf
+	pdflatex $<
+	pdflatex $<
 
-main: main.o
+out.txt:main
+	./$< > $@
 
-main.o: main.c
+main:main.o
 
+exp_plot.pdf: exp_plot.gpi out.txt
+	pyxplot $<
 
-.PHONEY:
 clean:
-	$(RM)
+	$(RM) exp.pdf *.log *.aux out* main *.o fig*.pdf fig*.tex
