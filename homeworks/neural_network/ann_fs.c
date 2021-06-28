@@ -1,187 +1,325 @@
-
-#include <stdio.h>
+#include <time.h>
+#include <gsl/gsl_blas.h>
 #include <math.h>
+#include <gsl/gsl_matrix.h>
 #include <stdio.h>
 #include <gsl/gsl_vector.h>
-#include <gsl/gsl_vector_double.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_blas.h>
-#include <assert.h>
-#include <gsl/gsl_linalg.h>
-#define RND (double)rand()/RAND_MAX;
-/*
-typedef struct { int n; double(*f)(double); gsl_vector* params; } ann;
+#include <float.h>
+#include "ann_fs.h"
 
-ann* alloc(int n,double(*f)(double)){
-	ann* network = malloc(sizeof(ann));
-	network->n = n;
-	network->f = f;
-	network->params = gsl_vector_alloc(3*n);
-	return network;
+//// lin alg functions /////
+double random_number(unsigned int *seed)
+{
+    double maxRand = (double) RAND_MAX;           // Maximum random number, cast to double
+    double randNum = (double) rand_r(seed);     // Generate pseudo-random number from seed, cast to double
+    return randNum / maxRand;
+}
+
+void printvector(char *s, gsl_vector *v)
+{
+    printf("%s\n", s);
+    for (int i = 0; i < v->size; i++)
+    {
+        printf("%10g ", gsl_vector_get(v, i));
+    }
+    printf("\n");
+}
+
+void print_matrix(int n, gsl_matrix *A, char *s)
+{
+    printf("\n%s\n", s);
+    for (int r = 0; r < n; r++)
+    {
+        gsl_vector_view A_r = gsl_matrix_row(A,r);
+        gsl_vector *v = &A_r.vector;
+        for (int i = 0; i < v->size; i++)
+        {
+            if (gsl_vector_get(v,i) > 1e-10)
+            {
+                printf("%10g\t", gsl_vector_get(v,i));
+            }
+            else
+            { printf("%10g\t", 0.0); }
+        }
+        printf("\n");
+    }
+}
+
+void symmetric(gsl_matrix *A, unsigned int *seed)
+{
+    for (int r = 0; r < (A->size1); r++)
+    {
+        gsl_matrix_set(A,r,r, random_number(seed));
+
+        for (int c = r + 1; c < A->size2; c++)
+        {
+            double e = random_number(seed);
+            gsl_matrix_set(A,r,c,e);
+            gsl_matrix_set(A,c,r,e);
+        }
+    }
+
+}
+////// Minimization functions //////
+#define MY_DOUBLE_EPSILON 2.22045e-10
+
+
+void gradient(double f(gsl_vector *), gsl_vector *m, gsl_vector *g)
+{
+    long double step_s = MY_DOUBLE_EPSILON; //Long double?
+    double f_val = f(m);
+    int dim = m->size;
+
+    for (int i = 0; i < dim; i++)
+    {
+        double step;
+        double m_i = gsl_vector_get(m, i);
+
+        if (fabs(m_i) < step_s)
+        {
+            step = step_s;
+        }
+        else
+        {
+            step = fabs(m_i) * step_s;
+        }
+
+        gsl_vector_set(m, i, m_i + step);
+        gsl_vector_set(g, i, (f(m) - f_val) / step);
+        gsl_vector_set(m, i, m_i - step);
+    }
+}
+
+void multimc(double f(gsl_vector *), gsl_vector *m, double tol)
+{
+    double step_s = MY_DOUBLE_EPSILON;
+    int dim = m->size;
+    int nst = 0;
+    int nsc = 0;
+    int nr = 0;
+
+    gsl_matrix *H = gsl_matrix_alloc(dim,dim);
+    gsl_matrix *I = gsl_matrix_alloc(dim,dim);
+    gsl_matrix_set_identity(H);
+    gsl_matrix_set_identity(I);
+
+    //Allocate memory for needed parts
+    gsl_vector *g_val = gsl_vector_alloc(dim);
+    gsl_vector *n_g_val = gsl_vector_alloc(dim);
+    gsl_vector *news = gsl_vector_alloc(dim);
+    gsl_vector *n_m = gsl_vector_alloc(dim);
+    gsl_vector *sol = gsl_vector_alloc(dim);
+    gsl_vector *sol_c = gsl_vector_alloc(dim);
+    gsl_vector *b = gsl_vector_alloc(dim);
+
+    gradient(f, m, g_val);
+    double f_val = f(m);
+    double n_f_val;
+
+    while (nst < 1e4)
+    {
+        nst++;
+        gsl_blas_dgemv(CblasNoTrans, -1, H, g_val, 0, news);
+        if (gsl_blas_dnrm2(news) < step_s * gsl_blas_dnrm2(m))
+        {
+            fprintf(stderr, "Quasi_newton_method: |dx| < stepSize*|x|\n");
+            break;
+        }
+        if (gsl_blas_dnrm2(g_val) < tol)
+        {
+            fprintf(stderr, "Quasi_newton_method: |grad| < accuracy\n");
+            break;
+        }
+
+        double scale = 1;
+
+        while (1) //while(1) means running until explict break
+        {
+            gsl_vector_memcpy(n_m, m);
+            gsl_vector_add(n_m, news);
+            n_f_val = f(n_m);
+            double s_g;
+            gsl_blas_ddot(news, g_val, &s_g);
+
+            if (n_f_val < f_val + 0.01 * s_g)
+            {
+                nsc++;
+                break;
+            }
+            if (scale < step_s)
+            {
+                nr++;
+                gsl_matrix_set_identity(H);
+                break;
+            }
+            scale *= 0.5;
+            gsl_vector_scale(news, 0.5);
+        }
+
+        gradient(f, n_m, n_g_val);
+        gsl_vector_memcpy(sol, n_g_val);
+        gsl_blas_daxpy(-1, g_val, sol);
+        gsl_vector_memcpy(sol_c, news);
+        gsl_blas_dgemv(CblasNoTrans, -1, H, sol, 1, sol_c);
+
+        gsl_matrix *sc_sc = gsl_matrix_calloc(dim, dim); //u*u^t
+        gsl_blas_dsyr(CblasUpper, 1.0, sol_c, sc_sc);
+        double sct; //u^T*y
+        gsl_blas_ddot(sol_c, sol, &sc_sc);
+        if (fabs(sct) > 1e-12)
+        {
+            gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0 / sct, sc_sc, I, 1.0, H);
+        }
+
+        gsl_vector_memcpy(m, n_m);
+        gsl_vector_memcpy(g_val, n_g_val);
+        f_val = n_f_val;
+    }
+
+    //Free allocated memory
+    gsl_matrix_free(H);
+    gsl_matrix_free(I);
+    gsl_vector_free(g_val);
+    gsl_vector_free(n_g_val);
+    gsl_vector_free(news);
+    gsl_vector_free(n_m);
+    gsl_vector_free(sol);
+    gsl_vector_free(sol_c);
+    gsl_vector_free(b);
+
+    fprintf(stderr,
+            "Quasi_newton_method: \n amount of steps = %i \n amount of scales = %i, \n amount of matrix resets = %i \n  f(x) = %.1e\n\n",
+            nst, nsc, nr, f_val);
 }
 
 
-void ann_free(ann* network){
-	gsl_vector_free(network->params);
-	free(network);
+
+
+////// Neural network functions /////
+
+
+ann *ann_alloc(int n, double (*f)(double),double(*df)(double),double(*fi)(double))
+{
+    int np = 3;
+    ann *nn = (ann *) malloc(sizeof(ann));
+    nn->params = gsl_vector_alloc(n * np);
+    nn->f = f;
+    nn->df = df;
+    nn->fi = fi;
+    nn->n = n;
+
+    return nn;
+}
+
+double ann_response(ann *network, double ep)
+{
+    int np = 2;
+    int n = network->n;
+    double res = 0;
+
+    for (int i = 0; i < n; ++i)
+    {
+        double nsh = gsl_vector_get(network->params, np * i);
+        double nsc = gsl_vector_get(network->params, np * i + 1);
+        double ned = gsl_vector_get(network->params, np * i + 2);
+
+        res += (network->f((ep - nsh) / nsc)) * ned;
+    }
+    return res;
+}
+double ann_response_d(ann *network, double ep)
+{
+    int np = 2;
+    int n = network->n;
+    double res = 0;
+
+    for (int i = 0; i < n; ++i)
+    {
+        double nsh = gsl_vector_get(network->params, np * i);
+        double nsc = gsl_vector_get(network->params, np * i + 1);
+        double ned = gsl_vector_get(network->params, np * i + 2);
+
+        res += (network->df((ep - nsh) / nsc)) * ned;
+    }
+    return res;
+}
+double ann_response_i(ann *network, double rp, double lp)
+{
+    int np = 2;
+    int n = network->n;
+    double res = 0;
+
+    for (int i = 0; i < n; ++i)
+    {
+        double nsh = gsl_vector_get(network->params, np * i);
+        double nsc = gsl_vector_get(network->params, np * i + 1);
+        double ned = gsl_vector_get(network->params, np * i + 2);
+
+        res += (((network->fi((lp - nsh) / nsc)) * ned)-((network->fi((rp - nsh) / nsc)) * ned));
+    }
+    return res;
+}
+
+void ann_train(ann *network, gsl_vector *data, gsl_vector *labels)
+{
+    unsigned int seed = time(NULL);
+    int np = 3;
+    int n_p = data->size;
+    int n = network->n;
+
+    double cost(gsl_vector *nextp)
+    {
+        int n = network->n;
+        gsl_vector *updatedp = gsl_vector_alloc(np * n);
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 0; j < np; ++j)
+            {
+                gsl_vector_set(updatedp, np * i + j,
+                               gsl_vector_get(nextp, np * i + j));
+            }
+        }
+
+        network->params = updatedp; //Update parameters
+        double cos = 0;
+
+        for (int i = 0; i < n_p; ++i)
+        {
+            double ep = gsl_vector_get(data, i);
+            double p_label = gsl_vector_get(labels, i);
+            double res = ann_response(network, ep);
+            cos += (res - p_label) * (res - p_label);
+        }
+
+        return cos;
+    }
+
+    double tol = 1e-5;
+    gsl_vector *lp = gsl_vector_alloc(n * np);
+
+    double a = -5;
+    double b = 5;
+
+    for (int i = 0; i < n; i++)
+    {
+        double weight = 1.000001;
+        double scale = 1;
+        double shift = -5+(b-a)*i/(n-1);
+
+        gsl_vector_set(lp, 3*i,1);
+        gsl_vector_set(lp, 3*i+1,scale);
+        gsl_vector_set(lp, 3*i+2,weight);
+    }
+
+    multimc(cost, lp, tol);
+
+    network->params = lp;
+
 }
 
 
-double ann_response(ann* network, double x){
-	int N = network->n;
-	double sum = 0;
-	for(int i=0;i<N;i++){
-		double a = gsl_vector_get(network->params,3*i);
-		double b = gsl_vector_get(network->params,3*i + 1);
-		double w = gsl_vector_get(network->params,3*i + 2);
-		sum += network->f((x-a)/b)*w;
-	}
-	return sum;
+void ann_free(ann *network)
+{
+    gsl_vector_free(network->params);
+    free(network);
 }
-
-ann* network;
-
-
-double cost(gsl_vector* p){
-	ann* network; gsl_vector* xs; gsl_vector*ys;
-	gsl_vector_memcpy(network->params,p);
-	int N = xs->size;;
-	double sum = 0;
-	for(int i =0;i<N;i++){
-		double xi = gsl_vector_get(xs,i);
-		double yi = gsl_vector_get(ys,i);
-		double fi = ann_response(network,xi);
-		sum += fabs(fi-yi)*fabs(fi- yi);
-	}
-	return sum / N;
-}
-
-*/
-void gradient(double f(gsl_vector* xvector),gsl_vector* x,gsl_vector* grad){
-	double DELTA = 2.22045e-16;
-	int n = x->size;
-	double dx = sqrt(DELTA);
-	double fdx = 0;
-	double fx = 0;
-	double xi = 0;
-	double gradi =0;
-	for(int i=0;i<n;i++){
-		xi = gsl_vector_get(x,i);
-		fx = f(x);
-		gsl_vector_set(x,i,xi+dx);
-		fdx = f(x);
-		gradi = (fdx - fx ) / ( dx );
-		gsl_vector_set(grad,i,gradi);
-		gsl_vector_set(x,i,xi);
-		}
-}
-
-
-
-void multimc(double f(gsl_vector* xvector),gsl_vector* x, double eps,int steps){
-	int n = x->size;
-	double DELTA = 2.22045e-16;
-	gsl_vector* Dx = gsl_vector_alloc(n);
-	gsl_vector* grad = gsl_vector_alloc(n);
-	gsl_vector* gradxs = gsl_vector_alloc(n);
-	gsl_matrix* B = gsl_matrix_alloc(n,n);
-	gsl_matrix* I = gsl_matrix_alloc(n,n);
-	gsl_vector* xs = gsl_vector_alloc(n);
-	gsl_vector* s = gsl_vector_alloc(n);
-	gsl_vector* c = gsl_vector_alloc(n);
-	gsl_vector* u = gsl_vector_alloc(n);
-	gsl_vector* y = gsl_vector_alloc(n);
-	gsl_matrix_set_identity(B);
-	gsl_matrix_set_identity(I);
-	double fx = f(x);
-	double fxs = 0;
-	double sTg=0;
-	gradient(f,x,grad);
-	int k = 0;
-	while(k<steps){
-		k++;
-		gsl_blas_dgemv(CblasNoTrans, -1, B, grad,0,Dx); // eq(6)
-		double lambda = 1;
-		double norm_grad = gsl_blas_dnrm2(grad);
-		if(norm_grad<DELTA*gsl_blas_dnrm2(x)){
-			//printf("The gradient is within our acceptance\nit is %g",norm_grad);
-			break;
-		}
-		double norm_Dx = gsl_blas_dnrm2(Dx);
-		if(norm_Dx<eps){
-			//printf("Dx is within our acceptance\n");
-			break;
-		}
-
-		while(1){
-
-			gsl_vector_memcpy(s,Dx);
-			gsl_vector_scale(s,lambda);
-			if(gsl_blas_dnrm2(s)==0){
-				printf("s is zero\n");
-				break;
-			}
-			gsl_vector_memcpy(xs,x);
-			gsl_vector_add(xs,s); // x+ s
-			fxs = f(xs); // f(x+s)
-			gsl_blas_ddot(s,grad,&sTg);
-			if(fxs<fx+0.001*sTg){
-				break;
-				}
-			if(lambda<0.01){
-				gsl_matrix_set_identity(B);
-				break;
-			}
-			lambda *=0.5;
-			}
-			if(gsl_blas_dnrm2(Dx)<1e-10){
-				break;
-			}
-		gradient(f,xs,gradxs);
-		gsl_vector_memcpy(y,gradxs);
-		gsl_vector_memcpy(u,s);
-		gsl_vector_sub(y,grad); // y = Grad(x+s) - Grad (x)
-		gsl_blas_dgemv(CblasNoTrans,-1,B,y,1,u);
-		double sTy = 0;
-		gsl_blas_ddot(s,y,&sTy);
-		if(fabs(sTy)>10e-6){
-			double gamma = 0;
-			double uTy = 0;
-			gsl_blas_ddot(u,y,&uTy); // uTy
-			gamma = 0.5 *(uTy)*(1/sTy); // sTy
-			gsl_vector_memcpy(c,u);
-			gsl_blas_daxpy(-gamma,s,u); // sTy * a
-			gsl_vector_scale(u,1/sTy);
-			gsl_blas_dger(1,u,s,B);
-			gsl_blas_dger(1,s,u,B);
-		}
-		gsl_vector_memcpy(x,xs);
-		gsl_vector_memcpy(grad,gradxs);
-		fx = fxs;
-	}
-	//printf("The number of steps it took to find the extremum is %i\n",k);
-	gsl_matrix_free(I);
-	gsl_matrix_free(B);
-	gsl_vector_free(Dx);
-	gsl_vector_free(grad);
-	gsl_vector_free(gradxs);
-	gsl_vector_free(xs);
-	gsl_vector_free(s);
-	gsl_vector_free(c);
-	gsl_vector_free(u);
-	gsl_vector_free(y);
-}
-
-/*
-void ann_train(ann* network,gsl_vector* xs, gsl_vector* ys){
-	int N = network->params->size;
-	gsl_vector* p = gsl_vector_alloc(N);
-	gsl_vector_memcpy(p,network->params);
-
-	multimc(cost,p,1e-3,1000);
-	gsl_vector_memcpy(network->params,p);
-	gsl_vector_free(p);
-}
-
-*/

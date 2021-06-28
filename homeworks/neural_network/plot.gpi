@@ -1,0 +1,14 @@
+set terminal png
+set title "Neural network prediction of $\cos(x)$"
+set xlabel "$x$"
+set ylabel "$y$"
+set key outside
+set output "plot.png"
+set tics in
+plot "output_ann.txt" using 1:2 with line lw 4 title "Network prediction"\
+, "output_ann.txt" using 1:6 with line lw 4 title "Network prediction - anti-derivative"\
+, "output_ann.txt" using 1:4 with line lw 4 title "Network prediction - derivative"\
+, "output_ann.txt" using 1:3 with line lw 2 title "$\cos(x)$ - analytical"\
+, "output_ann.txt" using 1:7 with line lw 2 title "$\sin(x)$ - analytical"\
+, "output_ann.txt" using 1:5 with line lw 2 title "$-\sin(x)$ - analytical"\
+, "data.txt" using 1:2 with points color black title "$\cos(x)$ - data points"
